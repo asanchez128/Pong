@@ -29,10 +29,12 @@ namespace Pong
         private GraphicsDeviceManager graphics;
 
         private Ball ball;
-        private Paddle paddle;
+        private PaddleHuman paddleHuman;
 
+       private PaddleComputer paddleComputer;
         private SoundEffect swishSound;
         private SoundEffect crashSound;
+        private Paddle paddle;
 
         // Used to delay between rounds 
         private float delayTimer = 0;
@@ -43,10 +45,14 @@ namespace Pong
             Content.RootDirectory = "Content";
 
             ball = new Ball(this);
-            paddle = new Paddle(this);
+            paddleHuman = new PaddleHuman(this);
+           paddleComputer = new PaddleComputer(this);
+           //paddle = new Paddle(this);
 
             Components.Add(ball);
-            Components.Add(paddle);             
+            Components.Add(paddleHuman);
+           Components.Add(paddleComputer);
+           //Components.Add(paddle);
 
             // Call Window_ClientSizeChanged when screen size is changed
             this.Window.ClientSizeChanged += new EventHandler<EventArgs>(Window_ClientSizeChanged);
@@ -54,11 +60,12 @@ namespace Pong
 
         void Window_ClientSizeChanged(object sender, EventArgs e)
         {
-            // Move paddle back onto screen if it's off
-            paddle.Y = GraphicsDevice.Viewport.Height - paddle.Height;
-            if (paddle.X + paddle.Width > GraphicsDevice.Viewport.Width)
-                paddle.X = GraphicsDevice.Viewport.Width - paddle.Width;
+           // Move paddle back onto screen if it's off
+           paddle.Y = GraphicsDevice.Viewport.Height - paddle.Height;
+           if (paddle.X + paddle.Width > GraphicsDevice.Viewport.Width)
+              paddle.X = GraphicsDevice.Viewport.Width - paddle.Width;
         }
+
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -108,77 +115,77 @@ namespace Pong
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
-                Keyboard.GetState().IsKeyDown(Keys.Escape))
-                this.Exit();
+           // Allows the game to exit
+           if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
+               Keyboard.GetState().IsKeyDown(Keys.Escape))
+              this.Exit();
 
-            // Press F to toggle full-screen mode
-            if (Keyboard.GetState().IsKeyDown(Keys.F))
-            {
-                graphics.IsFullScreen = !graphics.IsFullScreen;
-                graphics.ApplyChanges();
-            }
+           // Press F to toggle full-screen mode
+           if (Keyboard.GetState().IsKeyDown(Keys.F))
+           {
+              graphics.IsFullScreen = !graphics.IsFullScreen;
+              graphics.ApplyChanges();
+           }
 
-            // Wait until a second has passed before animating ball 
-            delayTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (delayTimer > 1)            
-                ball.Enabled = true;
-            
-            int maxX = GraphicsDevice.Viewport.Width - ball.Width;
-            int maxY = GraphicsDevice.Viewport.Height - ball.Height;
+           // Wait until a second has passed before animating ball 
+           delayTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+           if (delayTimer > 1)
+              ball.Enabled = true;
 
-            // Check for bounce. Make sure to place ball back inside the screen
-            // or it could remain outside the screen on the next iteration and cause
-            // a back-and-forth bouncing logic error.
-            if (ball.X > maxX)
-            {
-                ball.ChangeHorzDirection();
-                ball.X = maxX;
-            }
-            else if (ball.X < 0)
-            {
-                ball.ChangeHorzDirection();
-                ball.X = 0;
-            }
+           int maxX = GraphicsDevice.Viewport.Width - ball.Width;
+           int maxY = GraphicsDevice.Viewport.Height - ball.Height;
 
-            if (ball.Y < 0)
-            {
-                ball.ChangeVertDirection();
-                ball.Y = 0;
-            }
-            else if (ball.Y > maxY)
-            {
-                // Game over - reset ball
-                crashSound.Play();
-                ball.Reset();
+           // Check for bounce. Make sure to place ball back inside the screen
+           // or it could remain outside the screen on the next iteration and cause
+           // a back-and-forth bouncing logic error.
+           if (ball.X > maxX)
+           {
+              ball.ChangeHorzDirection();
+              ball.X = maxX;
+           }
+           else if (ball.X < 0)
+           {
+              ball.ChangeHorzDirection();
+              ball.X = 0;
+           }
 
-                // Reset timer and stop ball's Update() from executing
-                delayTimer = 0;
-                ball.Enabled = false;
-            }
+           if (ball.Y < 0)
+           {
+              ball.ChangeVertDirection();
+              ball.Y = 0;
+           }
+           else if (ball.Y > maxY)
+           {
+              // Game over - reset ball
+              crashSound.Play();
+              ball.Reset();
 
-            // Collision?  Check rectangle intersection between ball and hand
-            if (ball.Boundary.Intersects(paddle.Boundary) && ball.SpeedY > 0)
-            {
-                swishSound.Play();
+              // Reset timer and stop ball's Update() from executing
+              delayTimer = 0;
+              ball.Enabled = false;
+           }
 
-                // If hitting the side of the paddle the ball is coming toward, 
-                // switch the ball's horz direction
-                float ballMiddle = (ball.X + ball.Width) / 2;
-                float paddleMiddle = (paddle.X + paddle.Width) / 2;
-                if ((ballMiddle < paddleMiddle && ball.SpeedX > 0) ||
-                    (ballMiddle > paddleMiddle && ball.SpeedX < 0))
-                {
-                    ball.ChangeHorzDirection();
-                }
+           // Collision?  Check rectangle intersection between ball and hand
+           if (ball.Boundary.Intersects(paddle.Boundary) && ball.SpeedY > 0)
+           {
+              swishSound.Play();
 
-                // Go back up the screen and speed up
-                ball.ChangeVertDirection();
-                ball.SpeedUp();                
-            }
-            
-            base.Update(gameTime);
+              // If hitting the side of the paddle the ball is coming toward, 
+              // switch the ball's horz direction
+              float ballMiddle = (ball.X + ball.Width) / 2;
+              float paddleMiddle = (paddle.X + paddle.Width) / 2;
+              if ((ballMiddle < paddleMiddle && ball.SpeedX > 0) ||
+                  (ballMiddle > paddleMiddle && ball.SpeedX < 0))
+              {
+                 ball.ChangeHorzDirection();
+              }
+
+              // Go back up the screen and speed up
+              ball.ChangeVertDirection();
+              ball.SpeedUp();
+           }
+
+           base.Update(gameTime);
         }
 
         /// <summary>
