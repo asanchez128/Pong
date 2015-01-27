@@ -122,8 +122,8 @@ namespace Pong
             ballSpeed.X = DEFAULT_X_SPEED;
             ballSpeed.Y = DEFAULT_Y_SPEED;
 
-            ballPosition.Y = (GraphicsDevice.Viewport.Width - Width) / 2;
-           ballPosition.X = (GraphicsDevice.Viewport.Height - Height)/2;
+            ballPosition.Y = GraphicsDevice.Viewport.Height/2 - Height/2;
+           ballPosition.X = GraphicsDevice.Viewport.Width/2 - Width/2;
 
             // Make sure ball is not positioned off the screen
             if (ballPosition.X < 0)
@@ -131,20 +131,22 @@ namespace Pong
             else if (ballPosition.X + ballSprite.Width > GraphicsDevice.Viewport.Width)
             {
                 ballPosition.X = GraphicsDevice.Viewport.Width - ballSprite.Width;
-                               Random random = new Random();
-               int randomNumber = random.Next(0, 2);
-               if (randomNumber == 1)
-               {
-                  ballSpeed.Y *= -1;
-
-               }
-               else
-               {
-                  ballSpeed.Y *= 1;
-               }
-
 
             }
+
+            Random random = new Random();
+            int randomNumber = random.Next(0, 2);
+            if (randomNumber == 1)
+            {
+               ballSpeed.X *= -1;
+
+            }
+            else
+            {
+               ballSpeed.X *= 1;
+            }
+
+
         }
 
         /// <summary>
@@ -189,8 +191,9 @@ namespace Pong
             //ballPosition.Y = INIT_Y_POS;
 
             base.Initialize();
-            ballPosition.Y = (GraphicsDevice.Viewport.Width - Width) / 2;
-            ballPosition.X = (GraphicsDevice.Viewport.Height - Height) / 2;
+            ballPosition.Y = GraphicsDevice.Viewport.Height / 2 - Height / 2;
+            ballPosition.X = GraphicsDevice.Viewport.Width / 2 - Width / 2;
+
         }
 
         /// <summary>

@@ -47,12 +47,10 @@ namespace Pong
             ball = new Ball(this);
             paddleHuman = new PaddleHuman(this);
            paddleComputer = new PaddleComputer(this);
-           //paddle = new Paddle(this);
 
             Components.Add(ball);
             Components.Add(paddleHuman);
            Components.Add(paddleComputer);
-           //Components.Add(paddle);
 
             // Call Window_ClientSizeChanged when screen size is changed
             this.Window.ClientSizeChanged += new EventHandler<EventArgs>(Window_ClientSizeChanged);
@@ -138,23 +136,6 @@ namespace Pong
            // Check for bounce. Make sure to place ball back inside the screen
            // or it could remain outside the screen on the next iteration and cause
            // a back-and-forth bouncing logic error.
-           if (ball.X > maxX)
-           {
-              crashSound.Play();
-              ball.Reset();
-              delayTimer = 0;
-              ball.Enabled = false;
-
-//              ball.ChangeHorzDirection();
-//              ball.X = maxX;
-           }
-           else if (ball.X < 0)
-           {
-              crashSound.Play();
-              ball.Reset();
-              delayTimer = 0;
-              ball.Enabled = false;
-           }
 
            if (ball.Y < 0)
            {
@@ -163,12 +144,29 @@ namespace Pong
            }
            else if (ball.Y > maxY)
            {
-              // Game over - reset ball
-//              crashSound.Play();
-//              ball.Reset();
               ball.ChangeVertDirection();
               ball.Y = maxY;
+           }
+
+           if (ball.X > maxX)
+           {
+              // Game over - reset ball
+              crashSound.Play();
+              ball.Reset();
+
               // Reset timer and stop ball's Update() from executing
+              delayTimer = 0;
+              ball.Enabled = false;
+           }
+           else if (ball.X < 0)
+           {
+              // Game over - reset ball
+              crashSound.Play();
+              ball.Reset();
+
+              // Reset timer and stop ball's Update() from executing
+              delayTimer = 0;
+              ball.Enabled = false;
            }
 
            // Collision?  Check rectangle intersection between ball and hand
@@ -190,7 +188,7 @@ namespace Pong
               ball.ChangeVertDirection();
               ball.SpeedUp();
            }
-           else if (ball.Boundary.Intersects(paddleComputer.Boundary) && ball.SpeedY > 0)
+           if (ball.Boundary.Intersects(paddleComputer.Boundary) && ball.SpeedY < maxY)
            {
               swishSound.Play();
 
