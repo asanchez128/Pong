@@ -140,13 +140,20 @@ namespace Pong
            // a back-and-forth bouncing logic error.
            if (ball.X > maxX)
            {
-              ball.ChangeHorzDirection();
-              ball.X = maxX;
+              crashSound.Play();
+              ball.Reset();
+              delayTimer = 0;
+              ball.Enabled = false;
+
+//              ball.ChangeHorzDirection();
+//              ball.X = maxX;
            }
            else if (ball.X < 0)
            {
-              ball.ChangeHorzDirection();
-              ball.X = 0;
+              crashSound.Play();
+              ball.Reset();
+              delayTimer = 0;
+              ball.Enabled = false;
            }
 
            if (ball.Y < 0)
@@ -157,23 +164,22 @@ namespace Pong
            else if (ball.Y > maxY)
            {
               // Game over - reset ball
-              crashSound.Play();
-              ball.Reset();
-
+//              crashSound.Play();
+//              ball.Reset();
+              ball.ChangeVertDirection();
+              ball.Y = maxY;
               // Reset timer and stop ball's Update() from executing
-              delayTimer = 0;
-              ball.Enabled = false;
            }
 
            // Collision?  Check rectangle intersection between ball and hand
-           if (ball.Boundary.Intersects(paddle.Boundary) && ball.SpeedY > 0)
+           if (ball.Boundary.Intersects(paddleHuman.Boundary) && ball.SpeedY > 0)
            {
               swishSound.Play();
 
               // If hitting the side of the paddle the ball is coming toward, 
               // switch the ball's horz direction
               float ballMiddle = (ball.X + ball.Width) / 2;
-              float paddleMiddle = (paddle.X + paddle.Width) / 2;
+              float paddleMiddle = (paddleHuman.X + paddleHuman.Width) / 2;
               if ((ballMiddle < paddleMiddle && ball.SpeedX > 0) ||
                   (ballMiddle > paddleMiddle && ball.SpeedX < 0))
               {
@@ -184,7 +190,24 @@ namespace Pong
               ball.ChangeVertDirection();
               ball.SpeedUp();
            }
+           else if (ball.Boundary.Intersects(paddleComputer.Boundary) && ball.SpeedY > 0)
+           {
+              swishSound.Play();
 
+              // If hitting the side of the paddle the ball is coming toward, 
+              // switch the ball's horz direction
+              float ballMiddle = (ball.X + ball.Width) / 2;
+              float paddleMiddle = (paddleComputer.X + paddleComputer.Width) / 2;
+              if ((ballMiddle < paddleMiddle && ball.SpeedX > 0) ||
+                  (ballMiddle > paddleMiddle && ball.SpeedX < 0))
+              {
+                 ball.ChangeHorzDirection();
+              }
+
+              // Go back up the screen and speed up
+              ball.ChangeVertDirection();
+              ball.SpeedUp();
+           }
            base.Update(gameTime);
         }
 
