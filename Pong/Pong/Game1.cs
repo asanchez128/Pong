@@ -34,7 +34,6 @@ namespace Pong
        private PaddleComputer paddleComputer;
         private SoundEffect swishSound;
         private SoundEffect crashSound;
-        private Paddle paddle;
 
         // Used to delay between rounds 
         private float delayTimer = 0;
@@ -59,9 +58,11 @@ namespace Pong
         void Window_ClientSizeChanged(object sender, EventArgs e)
         {
            // Move paddle back onto screen if it's off
-           paddle.Y = GraphicsDevice.Viewport.Height - paddle.Height;
-           if (paddle.X + paddle.Width > GraphicsDevice.Viewport.Width)
-              paddle.X = GraphicsDevice.Viewport.Width - paddle.Width;
+           paddleHuman.X = GraphicsDevice.Viewport.Width - paddleHuman.Width;
+           if (paddleComputer.Y + paddleComputer.Height > GraphicsDevice.Viewport.Height)
+              paddleComputer.Y = GraphicsDevice.Viewport.Height - paddleComputer.Height;
+           if (paddleHuman.Y + paddleHuman.Height > GraphicsDevice.Viewport.Height)
+              paddleHuman.Y = GraphicsDevice.Viewport.Height - paddleHuman.Height;
         }
 
 
@@ -170,41 +171,44 @@ namespace Pong
            }
 
            // Collision?  Check rectangle intersection between ball and hand
-           if (ball.Boundary.Intersects(paddleHuman.Boundary) && ball.SpeedY > 0)
+           if (ball.Boundary.Intersects(paddleHuman.Boundary) && ball.SpeedX > 0)
            {
               swishSound.Play();
 
               // If hitting the side of the paddle the ball is coming toward, 
               // switch the ball's horz direction
-              float ballMiddle = (ball.X + ball.Width) / 2;
-              float paddleMiddle = (paddleHuman.X + paddleHuman.Width) / 2;
-              if ((ballMiddle < paddleMiddle && ball.SpeedX > 0) ||
-                  (ballMiddle > paddleMiddle && ball.SpeedX < 0))
+              float ballMiddle = (ball.Y + ball.Height) / 2;
+              float paddleMiddle = (paddleHuman.Y + paddleHuman.Height) / 2;
+              if ((ballMiddle < paddleMiddle && ball.SpeedY > 0) ||
+                  (ballMiddle > paddleMiddle && ball.SpeedY < 0))
               {
-                 ball.ChangeHorzDirection();
+                 ball.ChangeVertDirection();
               }
 
               // Go back up the screen and speed up
-              ball.ChangeVertDirection();
+              ball.ChangeHorzDirection();
               ball.SpeedUp();
            }
-           if (ball.Boundary.Intersects(paddleComputer.Boundary) && ball.SpeedY < maxY)
+           if (ball.Boundary.Intersects(paddleComputer.Boundary) && ball.SpeedX < 0)
            {
-              swishSound.Play();
-
-              // If hitting the side of the paddle the ball is coming toward, 
-              // switch the ball's horz direction
-              float ballMiddle = (ball.X + ball.Width) / 2;
-              float paddleMiddle = (paddleComputer.X + paddleComputer.Width) / 2;
-              if ((ballMiddle < paddleMiddle && ball.SpeedX > 0) ||
-                  (ballMiddle > paddleMiddle && ball.SpeedX < 0))
+              if (paddleComputer.Width >= ball.X)
               {
-                 ball.ChangeHorzDirection();
-              }
+                 swishSound.Play();
 
-              // Go back up the screen and speed up
-              ball.ChangeVertDirection();
-              ball.SpeedUp();
+                 // If hitting the side of the paddle the ball is coming toward, 
+                 // switch the ball's horz direction
+                 float ballMiddle = (ball.Y + ball.Height) / 2;
+                 float paddleMiddle = (paddleComputer.Y + paddleComputer.Height) / 2;
+                 if ((ballMiddle < paddleMiddle && ball.SpeedY > 0) ||
+                     (ballMiddle > paddleMiddle && ball.SpeedY < 0))
+                 {
+                    ball.ChangeVertDirection();
+                 }
+
+                 // Go back up the screen and speed up
+                 ball.ChangeHorzDirection();
+                 ball.SpeedUp();
+              }
            }
            base.Update(gameTime);
         }

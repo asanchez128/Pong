@@ -54,7 +54,7 @@ namespace Pong
 
          // Make sure base.Initialize() is called before this or handSprite will be null
          X = GraphicsDevice.Viewport.Width - Width;
-         Y = (GraphicsDevice.Viewport.Height - Height) / 2;
+         Y = GraphicsDevice.Viewport.Height/2 - Height/ 2;
 
          Speed = DEFAULT_X_SPEED;
       }
